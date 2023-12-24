@@ -10,7 +10,7 @@ const SidebarIcon = ({icon,label, active}:{icon:any, label:string, active?:boole
             )}>
             {icon}
             </div>
-            <div className='text-sm mt-2'>{label}</div>
+            <div className='text-sm mt-2 text-secondaryBg'>{label}</div>
         </div>
     )
 }

@@ -1,5 +1,6 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { persist, devtools } from "zustand/middleware";
+import cookies from "./utils/functions/cookies";
 
 type AuthData = {
   token: string;
@@ -14,33 +15,38 @@ type AppState = {
 };
 
 const useAppStore = create<AppState>()(
-  persist(
-    (set) => ({
-      authData: {
-        token: "",
-        username: "",
-        id: "",
-      },
-      setAuthData: (params) =>
-        set((state) => ({
-          authData: {
-            ...state.authData,
-            ...params,
-          },
-        })),
-      logout: () => {
-        set({
-          authData: {
-            token: "",
-            username: "",
-            id: "",
-          },
-        });
-      },
-    }),
-    {
-      name: "cache-storage",
-    }
+  devtools(
+    persist(
+      (set) => ({
+        authData: {
+          token: "",
+          username: "",
+          id: "",
+        },
+        setAuthData: (params) => {
+          console.log("Setting auth data", params);
+          set((state) => ({
+            authData: {
+              ...state.authData,
+              ...params,
+            },
+          }));
+        },
+        logout: () => {
+          console.log("Logout out");
+          set({
+            authData: {
+              token: "",
+              username: "",
+              id: "",
+            },
+          });
+        },
+      }),
+      {
+        name: "cache-storage",
+      }
+    )
   )
 );
 

@@ -22,22 +22,10 @@ const MessageItem = ({ isSelf, text }: { isSelf?: boolean; text: string }) => {
   );
 };
 
-const MessagesContainer = ({
-  messages,
-}: {
-  messages: { id: number; text: string }[];
-}) => {
+const MessagesContainer = () => {
   return (
     <div className="min-h-full py-9 w-full overflow-y-auto">
-      <div className="space-y-4">
-        {messages.map((message) => (
-          <MessageItem
-            key={message.id}
-            isSelf={message.id % 2 === 1}
-            text={message.text}
-          />
-        ))}
-      </div>
+      <div className="space-y-4"></div>
     </div>
   );
 };

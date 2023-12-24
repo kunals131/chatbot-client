@@ -1,7 +1,7 @@
 import useAppStore from "@/store";
 import axios from "axios";
-import Cookies from "js-cookie";
 import { ROUTES } from "../constants";
+import cookies from "../functions/cookies";
 
 export const axiosInstance = axios.create({
   baseURL: "http://localhost:8000/v1/api",
@@ -9,8 +9,10 @@ export const axiosInstance = axios.create({
 });
 
 axiosInstance.interceptors.request.use(
-  (config) => {
-    const token = useAppStore.getState().authData.token || Cookies.get("token");
+  async (config) => {
+    const token = useAppStore.getState().authData.token;
+    console.log("Token found", token);
+
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -19,29 +21,29 @@ axiosInstance.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-axios.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    const originalRequest = error.config;
+// axios.interceptors.response.use(
+//   (response) => response,
+//   (error) => {
+//     const originalRequest = error.config;
 
-    if (
-      error.response.status === 401 &&
-      error.response.data.message.includes("Could not validate credentials")
-    ) {
-      // Call your logout function here
-      useAppStore.getState().logout();
+//     if (
+//       error.response.status === 401 &&
+//       error.response.data.message.includes("Could not validate credentials")
+//     ) {
+//       // Call your logout function here
+//       // useAppStore.getState().logout();
 
-      // Redirect to the login page
-      if (window && window.location.href !== ROUTES.AUTH) {
-        window.location.href = ROUTES.AUTH;
-      }
+//       // Redirect to the login page
+//       // if (window && window.location.href !== ROUTES.AUTH) {
+//       //   window.location.href = ROUTES.AUTH;
+//       }
 
-      return Promise.reject(error); // Reject the request to avoid further processing
-    }
+//       return Promise.reject(error); // Reject the request to avoid further processing
+//     }
 
-    return Promise.reject(error); // Pass through other errors
-  }
-);
+//     return Promise.reject(error); // Pass through other errors
+//   }
+// );
 
 export const createAuthenticatedAxiosInstance = (token: string) => {
   const instance = axios.create({

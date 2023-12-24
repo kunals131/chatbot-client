@@ -23,6 +23,7 @@ const LoginForm = ({ setAuthView }: Props) => {
     mutationFn: loginUser,
     onSuccess: (data) => {
       setAuthData(data);
+      toast.success("Loggedin successfully!");
       router.push("/app");
     },
     onError: (err: AxiosError<any, any>) => {
