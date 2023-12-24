@@ -1,31 +1,28 @@
 import { cn } from "@/lib/utils";
 import React from "react";
-
-const MessageItem = ({ isSelf, text }: { isSelf?: boolean; text: string }) => {
-  return (
-    <div
-      className={cn(
-        "flex items-center",
-        isSelf && "justify-start",
-        !isSelf && "justify-end"
-      )}
-    >
-      <div
-        className={cn(
-          "px-5 py-4 rounded-[2rem] max-w-[80%] text-white",
-          isSelf ? "bg-[#3a3939]" : "bg-primary text-secondaryBg"
-        )}
-      >
-        {text}
-      </div>
-    </div>
-  );
-};
+import { useChatContext } from "../Chat.context";
+import MessageItem from "../MessageItem";
 
 const MessagesContainer = () => {
+  const { messages, tempMessage, sendMessageLoading } = useChatContext();
   return (
     <div className="min-h-full py-9 w-full overflow-y-auto">
-      <div className="space-y-4"></div>
+      <div className="space-y-7">
+        {messages.map((message, idx) => (
+          <>
+            <MessageItem key={message._id.$oid} text={message.message} isSelf />
+            <MessageItem
+              key={idx}
+              text={message.response}
+              additionalInfo={message}
+            />
+          </>
+        ))}
+        {tempMessage && <MessageItem text={tempMessage} isSelf />}
+        {sendMessageLoading && (
+          <MessageItem text={tempMessage} isSelf isPending />
+        )}
+      </div>
     </div>
   );
 };

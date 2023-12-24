@@ -1,28 +1,41 @@
-import React, { useState } from "react";
+import React from "react";
 import ChatHistory from "./ChatHistory";
-import { PiMagicWand } from "react-icons/pi";
-import { BiSolidSend } from "react-icons/bi";
-import { TbChartBubble } from "react-icons/tb";
-import { TbGraph } from "react-icons/tb";
-import { cn } from "@/lib/utils";
 import MessagesContainer from "./MessagesContainer";
 import MessageInput from "./MessageInput";
-import { ChatContextProvider } from "./Chat.context";
+import { ChatContextProvider, useChatContext } from "./Chat.context";
 
 const Chat = () => {
+  const { fetchThreadMessagesError, fetchThreadMessagesLoading } =
+    useChatContext();
   return (
-    <ChatContextProvider>
-      <div className="grid w-full min-h-screen grid-cols-[1.4fr_3fr]">
-        <ChatHistory />
+    <div className="grid w-full min-h-screen grid-cols-[1.4fr_3fr]">
+      <ChatHistory />
+      {fetchThreadMessagesLoading ? (
+        <div className="flex items-center justify-center text-white/70">
+          Fetching messages...
+        </div>
+      ) : fetchThreadMessagesError ? (
+        <div className="flex items-center justify-center text-red-300">
+          Something went wrong!
+        </div>
+      ) : (
         <div className="px-12 w-full h-full flex flex-col">
           <div className="flex-[0.82] h-full w-full">
             <MessagesContainer />
           </div>
           <MessageInput />
         </div>
-      </div>
+      )}
+    </div>
+  );
+};
+
+const ChatWithContext = () => {
+  return (
+    <ChatContextProvider>
+      <Chat />
     </ChatContextProvider>
   );
 };
 
-export default Chat;
+export default ChatWithContext;

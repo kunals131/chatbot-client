@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { BiSolidSend } from "react-icons/bi";
 import { PiMagicWand } from "react-icons/pi";
 import { TbChartBubble, TbGraph } from "react-icons/tb";
+import { useChatContext } from "../Chat.context";
 
 const ActionButton = ({
   icon,
@@ -28,9 +29,13 @@ const ActionButton = ({
 
 const MessageInput = () => {
   const [text, setText] = useState("");
+  const { sendMessage, sendMessageLoading, isSendMessageError } =
+    useChatContext();
   const handleSend = (text: string) => {
     if (!text) return;
-    setText("");
+    sendMessage(text, () => {
+      setText("");
+    });
   };
   const ActionButton = ({
     icon,

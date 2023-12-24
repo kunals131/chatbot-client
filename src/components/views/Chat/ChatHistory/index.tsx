@@ -1,18 +1,30 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { PiChatCircleDuotone } from "react-icons/pi";
 import { CgMenuMotion } from "react-icons/cg";
-import Image from "next/image";
 import { useQuery } from "@tanstack/react-query";
 import { getMessageThreads } from "./ChatHistory.api";
-import { Thread } from "./ChatHistory.types";
 import { convertToRelativeTime } from "@/utils/functions";
+import { useChatContext } from "../Chat.context";
+import { cn } from "@/lib/utils";
+import { Thread } from "../Chat.types";
 
 type ThreadItemProps = {
   threadData: Thread;
 };
 const ThreadItem = ({ threadData }: ThreadItemProps) => {
+  const { activeThread, setActiveThread } = useChatContext();
+  const handleThreadItemClick = () => {
+    setActiveThread(threadData);
+  };
+  const isActive = activeThread?._id?.$oid === threadData._id.$oid;
   return (
-    <div className="px-4 border cursor-pointer border-white/20 hover:border-white/90 transition-all py-3 hover:scale-x-105 hover:scale-110 rounded-md bg-secondaryBgElevated">
+    <div
+      onClick={handleThreadItemClick}
+      className={cn(
+        "px-4 border cursor-pointer border-white/20 hover:border-white/90 transition-all py-4 hover:scale-x-105 hover:scale-110 rounded-md bg-secondaryBgElevated",
+        isActive && "border-white/90 scale-x-105 scale-110"
+      )}
+    >
       <div className="text-xs flex items-center justify-between opacity-80 font-semibold cursor-pointer">
         <div className="">{threadData?.title}</div>
         <div className="text-white/50">
@@ -36,6 +48,21 @@ const ChatHistory = () => {
     select: (data) => (data?.threads || []) as Thread[],
   });
 
+  const { setActiveThread, setSessionId } = useChatContext();
+
+  useEffect(() => {
+    if (fetchedThreads?.length) {
+      setActiveThread(fetchedThreads[0]);
+    }
+  }, [fetchedThreads]);
+
+  const isFallbackUI = isLoading || isError;
+  const fallbackUI = (
+    <div className="my-16 text-sm text-white/70 text-center">
+      {isLoading ? "Fetching threads.." : "Something went wrong!"}
+    </div>
+  );
+
   return (
     <div className="bg-secondaryBg min-h-screen w-full rounded-r-3xl py-10 px-8">
       <div className="flex items-center justify-between">
@@ -50,7 +77,7 @@ const ChatHistory = () => {
         </div>
         <div className="flex items-center gap-3">
           <button className="bg-primary text-sm  rounded-3xl text-secondaryBg px-6 font-medium py-3">
-            {fetchedThreads?.length} Active Chats
+            {fetchedThreads?.length} Active Threads
           </button>
         </div>
       </div>
@@ -69,9 +96,11 @@ const ChatHistory = () => {
         </div>
       </div>
       <div className="mt-6 space-y-4">
-        {fetchedThreads?.map((item) => (
-          <ThreadItem threadData={item} key={item._id.$oid} />
-        ))}
+        {isFallbackUI
+          ? fallbackUI
+          : fetchedThreads?.map((item) => (
+              <ThreadItem threadData={item} key={item._id.$oid} />
+            ))}
       </div>
     </div>
   );
