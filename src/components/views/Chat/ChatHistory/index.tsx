@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { PiChatCircleDuotone } from "react-icons/pi";
+import { PiChatCircleDuotone, PiDotsThreeOutlineFill } from "react-icons/pi";
 import { CgMenuMotion } from "react-icons/cg";
 import { useQuery } from "@tanstack/react-query";
 import { getMessageThreads } from "./ChatHistory.api";
@@ -7,6 +7,14 @@ import { convertToRelativeTime } from "@/utils/functions";
 import { useChatContext } from "../Chat.context";
 import { cn } from "@/lib/utils";
 import { Thread } from "../Chat.types";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 type ThreadItemProps = {
   threadData: Thread;
@@ -25,13 +33,30 @@ const ThreadItem = ({ threadData }: ThreadItemProps) => {
         isActive && "border-white/90"
       )}
     >
-      <div className="text-xs flex items-center justify-between opacity-80 font-semibold cursor-pointer">
-        <div className="">{threadData?.title}</div>
-        <div className="text-white/50">
-          {convertToRelativeTime(threadData.updatedAt)}
+      <div className="flex items-center justify-between">
+        <div className="cursor-pointer">
+          <div className="text-xs opacity-80 font-semibold">
+            {threadData?.title}
+          </div>
+          <div className="mt-1 text-sm">{threadData?.lastMessage}</div>
+        </div>
+        <div className="flex flex-col items-end">
+            <div className="text-white/50 text-xs">
+              {convertToRelativeTime(threadData.updatedAt)}
+            </div>
+          <div className="mt-1">
+            <DropdownMenu>
+              <DropdownMenuTrigger>
+                <PiDotsThreeOutlineFill />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem className="font">Edit</DropdownMenuItem>
+                <DropdownMenuItem>Delete</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
       </div>
-      <div className="mt-1 text-sm">{threadData?.lastMessage}</div>
     </div>
   );
 };

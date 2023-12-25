@@ -49,7 +49,7 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <div
       className={cn(
-        "min-h-screen w-full text-white bg-primaryBg font-sans",
+        "min-h-screen w-full text-white bg-primaryBg !font-sans",
         fontSans.variable
       )}
     >

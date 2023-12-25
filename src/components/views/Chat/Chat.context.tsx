@@ -114,7 +114,7 @@ export const ChatContextProvider = ({ children }: any) => {
         });
       }
       queryClient.setQueryData(
-        ["thread-messages", { activeThreadId: activeThread?._id?.$oid }],
+        ["thread-messages", { activeThreadId: data?.thread?._id?.$oid }],
         (oldData: any) => {
           console.log(oldData);
           return {

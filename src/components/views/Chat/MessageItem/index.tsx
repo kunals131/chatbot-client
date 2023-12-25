@@ -8,6 +8,7 @@ import TypeWriterEffect from "@/components/common/TypeWriterEffect";
 import { DataTable } from "../FilteredEngineersTable";
 import { prepareSuggestedRecords } from "./MessageItem.helpers";
 import { motion } from "framer-motion";
+
 const MessageItem = ({ isSelf, text, additionalInfo, isPending }: Props) => {
   const isMounted = useIsMounted();
   const { lastMessageId, setLastMessageId } = useChatContext();
@@ -43,7 +44,9 @@ const MessageItem = ({ isSelf, text, additionalInfo, isPending }: Props) => {
             ) : isLastMessage ? (
               <TypeWriterEffect
                 run
-                onTextEnd={() => setLastMessageId("")}
+                onTextEnd={() => {
+                  setTimeout(() => setLastMessageId(""));
+                }}
                 text={text}
               />
             ) : (
@@ -51,8 +54,15 @@ const MessageItem = ({ isSelf, text, additionalInfo, isPending }: Props) => {
                 <div className="">{text}</div>
                 {additionalInfo?.suggestedResults?.matches &&
                   !!additionalInfo?.suggestedResults?.matches?.length && (
-                    <motion.div animate={{translateY: '0px'}} initial={{translateY:'50px'}} className="w-full mt-1">
-                      <div className="text-sm text-white/60 mb-2">Although I found a few responses, you can filter your search further!</div>
+                    <motion.div
+                      animate={isLastMessage ? { translateY: "0px" } : {}}
+                      initial={isLastMessage ? { translateY: "50px" } : {}}
+                      className="w-full mt-1"
+                    >
+                      <div className="text-sm text-white/60 mb-2">
+                        Although I found a few responses, you can filter your
+                        search further!
+                      </div>
                       <DataTable
                         records={prepareSuggestedRecords(
                           additionalInfo?.suggestedResults?.matches
