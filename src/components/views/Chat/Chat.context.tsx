@@ -8,7 +8,9 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 const scrollToBottomOfMessageContainer = () => {
   const messageContainer = document.getElementById("messages-container-end");
   if (!messageContainer) return;
-  messageContainer?.scrollIntoView({ behavior: 'smooth' });
+  setTimeout(()=>{
+    messageContainer?.scrollIntoView({ behavior: 'smooth' });
+  })
 };
 
 type TChatContext = {
@@ -90,9 +92,12 @@ export const ChatContextProvider = ({ children }: any) => {
     onSettled: ()=>setTempMessage("")
   })
 
+  useEffect(()=>{
+    scrollToBottomOfMessageContainer();
+  }, [tempMessage, fetchedMessages?.length])
+
   const sendMessage = (message:string)=>{
     setTempMessage(message);
-    scrollToBottomOfMessageContainer();
     sendMessageMutate({
       message,
       sessionId
