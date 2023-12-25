@@ -2,17 +2,34 @@ import React, { ChangeEvent, useState } from "react";
 import AuthInput from "../AuthInput";
 import { checkInputErrors } from "@/utils/functions";
 import { AuthView } from "../Auth.types";
+import { useMutation } from "@tanstack/react-query";
+import { registerUser } from "./RegisterForm.api";
+import toast from "react-hot-toast";
+import { AxiosError } from "axios";
 
 const RegisterForm = ({ setAuthView }: Props) => {
   const [form, setForm] = useState({
     username: "",
     password: "",
+    confirm_password: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     setErrors((prev) => ({ ...prev, [e.target.name]: "" }));
     setForm({ ...form, [e.target.name]: e.target.value });
   };
+
+  const { mutate, isPending: registerLoading } = useMutation({
+    mutationFn: registerUser,
+    onSuccess: (data) => {
+      toast.success("Registered successfully!");
+      setAuthView(AuthView.LOGIN);
+    },
+    onError: (err: AxiosError<any, any>) => {
+      toast.error(err?.response?.data?.messaage || "Something went wrong!");
+    },
+  });
 
   const handleSubmit = () => {
     const validation = checkInputErrors(form);
@@ -20,6 +37,14 @@ const RegisterForm = ({ setAuthView }: Props) => {
       setErrors(validation.errors);
       return;
     }
+    if (form.password !== form.confirm_password) {
+      setErrors((prev) => ({
+        ...prev,
+        confirm_password: "Password and confirm password must be same!",
+      }));
+      return;
+    }
+    mutate(form);
   };
   return (
     <>
@@ -46,9 +71,9 @@ const RegisterForm = ({ setAuthView }: Props) => {
           />
           <AuthInput
             onChange={handleInputChange}
-            name="confirmPassword"
+            name="confirm_password"
             placeholder="Enter Confirm Password"
-            error={errors["confirmPassword"]}
+            error={errors["confirm_password"]}
             label="Confirm Password"
             type="password"
           />

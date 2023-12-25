@@ -24,7 +24,7 @@ const useAppStore = create<AppState>()(
           id: "",
         },
         setAuthData: (params) => {
-          console.log("Setting auth data", params);
+          console.log("Setting auth data");
           set((state) => ({
             authData: {
               ...state.authData,

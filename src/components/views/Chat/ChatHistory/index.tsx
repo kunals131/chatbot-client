@@ -21,8 +21,8 @@ const ThreadItem = ({ threadData }: ThreadItemProps) => {
     <div
       onClick={handleThreadItemClick}
       className={cn(
-        "px-4 border cursor-pointer border-white/20 hover:border-white/90 transition-all py-4 hover:scale-x-105 hover:scale-110 rounded-md bg-secondaryBgElevated",
-        isActive && "border-white/90 scale-x-105 scale-110"
+        "px-4 border cursor-pointer border-white/20 hover:border-white/90 transition-all py-4  rounded-md bg-secondaryBgElevated",
+        isActive && "border-white/90"
       )}
     >
       <div className="text-xs flex items-center justify-between opacity-80 font-semibold cursor-pointer">
@@ -48,8 +48,7 @@ const ChatHistory = () => {
     select: (data) => (data?.threads || []) as Thread[],
   });
 
-  const { setActiveThread, isNewThread,setIsNewThread } = useChatContext();
-
+  const { setActiveThread, isNewThread, setIsNewThread } = useChatContext();
 
   useEffect(() => {
     if (fetchedThreads?.length) {
@@ -88,7 +87,7 @@ const ChatHistory = () => {
             <PiChatCircleDuotone />
           </div>
           <div
-          onClick={()=>setIsNewThread(true)}
+            onClick={() => setIsNewThread(true)}
             className="bg-secondaryBgElevated border cursor-pointer border-gray-700 pl-14 placeholder:text-sm outline-none text-white/70 hover:text-white  hover:border-gray-300 transition-all placeholder:text-white/50 py-5 rounded-2xl w-full"
           >
             Start a new conversation
@@ -98,12 +97,14 @@ const ChatHistory = () => {
           <CgMenuMotion />
         </div>
       </div>
-      <div className="mt-6 space-y-4">
-        {isFallbackUI
-          ? fallbackUI
-          : fetchedThreads?.map((item) => (
-              <ThreadItem threadData={item} key={item._id.$oid} />
-            ))}
+      <div className="h-[650px] overflow-y-auto">
+        <div className="mt-6 space-y-4">
+          {isFallbackUI
+            ? fallbackUI
+            : fetchedThreads?.map((item) => (
+                <ThreadItem threadData={item} key={item._id.$oid} />
+              ))}
+        </div>
       </div>
     </div>
   );
