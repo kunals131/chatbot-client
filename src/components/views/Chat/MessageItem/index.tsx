@@ -5,12 +5,15 @@ import Loader from "react-spinners/BeatLoader";
 import { useIsMounted } from "@/utils/hooks/useIsMounted";
 import { useChatContext } from "../Chat.context";
 import TypeWriterEffect from "@/components/common/TypeWriterEffect";
-
+import { DataTable } from "../FilteredEngineersTable";
+import { prepareSuggestedRecords } from "./MessageItem.helpers";
+import { motion } from "framer-motion";
 const MessageItem = ({ isSelf, text, additionalInfo, isPending }: Props) => {
   const isMounted = useIsMounted();
   const { lastMessageId, setLastMessageId } = useChatContext();
   const isLastMessage = lastMessageId === additionalInfo?._id.$oid;
   if (!isMounted) return null;
+  console.log(additionalInfo);
   return (
     <div className={cn("flex items-center")}>
       {isSelf ? (
@@ -44,7 +47,20 @@ const MessageItem = ({ isSelf, text, additionalInfo, isPending }: Props) => {
                 text={text}
               />
             ) : (
-              <div className="">{text}</div>
+              <div className="w-full">
+                <div className="">{text}</div>
+                {additionalInfo?.suggestedResults?.matches &&
+                  !!additionalInfo?.suggestedResults?.matches?.length && (
+                    <motion.div animate={{translateY: '0px'}} initial={{translateY:'50px'}} className="w-full mt-1">
+                      <div className="text-sm text-white/60 mb-2">Although I found a few responses, you can filter your search further!</div>
+                      <DataTable
+                        records={prepareSuggestedRecords(
+                          additionalInfo?.suggestedResults?.matches
+                        )}
+                      />
+                    </motion.div>
+                  )}
+              </div>
             )}
           </div>
         </div>

@@ -18,19 +18,30 @@ export type ChatMessage = {
   response: string;
   entities: object;
   sessionId: string;
-  suggestedResults: object[];
+  suggestedResults: {
+    matches: any[];
+  };
   threadId: string;
   createdAt: string;
   message: string;
 };
 
-
 export type Thread = {
-  _id:ObjectId;
+  _id: ObjectId;
   userId: string;
   sessionId: string;
   updatedAt: string;
   messages: ObjectId[];
   title: string;
   lastMessage: string;
+};
+
+export type EngineerSearchResult = {
+  id: string;
+  score: string;
+  skills: string;
+  ftAvailability: string;
+  ptAvailability: string;
+  ftSalary: string;
+  ptSalary: string;
 };

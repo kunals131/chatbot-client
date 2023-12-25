@@ -23,6 +23,7 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
     mutationFn: verifyAuth,
     onError: (error: AxiosError) => {
       logout();
+      console.log(error.message);
       if (
         error.code === "401" ||
         error.message.includes("Could not validate credentials")
