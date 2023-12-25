@@ -48,7 +48,8 @@ const ChatHistory = () => {
     select: (data) => (data?.threads || []) as Thread[],
   });
 
-  const { setActiveThread, setSessionId } = useChatContext();
+  const { setActiveThread, isNewThread,setIsNewThread } = useChatContext();
+
 
   useEffect(() => {
     if (fetchedThreads?.length) {
@@ -86,10 +87,12 @@ const ChatHistory = () => {
           <div className="text-primary text-3xl absolute left-4">
             <PiChatCircleDuotone />
           </div>
-          <input
-            placeholder="Start a new chat.."
-            className="bg-secondaryBgElevated border border-gray-700 pl-14 placeholder:text-sm outline-none text-white placeholder:text-white/50 py-5 rounded-3xl w-full"
-          />
+          <div
+          onClick={()=>setIsNewThread(true)}
+            className="bg-secondaryBgElevated border cursor-pointer border-gray-700 pl-14 placeholder:text-sm outline-none text-white/70 hover:text-white  hover:border-gray-300 transition-all placeholder:text-white/50 py-5 rounded-2xl w-full"
+          >
+            Start a new conversation
+          </div>
         </div>
         <div className="w-16 text-white text-2xl h-16 shrink-0 bg-secondaryBgElevated rounded-full flex items-center justify-center">
           <CgMenuMotion />

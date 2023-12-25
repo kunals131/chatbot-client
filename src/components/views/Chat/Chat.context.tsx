@@ -8,9 +8,9 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 const scrollToBottomOfMessageContainer = () => {
   const messageContainer = document.getElementById("messages-container-end");
   if (!messageContainer) return;
-  setTimeout(()=>{
-    messageContainer?.scrollIntoView({ behavior: 'smooth' });
-  })
+  setTimeout(() => {
+    messageContainer?.scrollIntoView({ behavior: "smooth" });
+  });
 };
 
 type TChatContext = {
@@ -29,6 +29,8 @@ type TChatContext = {
   isSendMessageError: boolean;
   lastMessageId: string;
   setLastMessageId: (val: string) => void;
+  setIsNewThread: (val: boolean) => void;
+  isNewThread: boolean;
 };
 
 export const ChatContext = createContext<TChatContext>({
@@ -47,6 +49,8 @@ export const ChatContext = createContext<TChatContext>({
   lastMessageId: "",
   setLastMessageId: () => {},
   setSessionId: () => {},
+  setIsNewThread: () => {},
+  isNewThread: false,
 });
 
 export const ChatContextProvider = ({ children }: any) => {
@@ -58,53 +62,97 @@ export const ChatContextProvider = ({ children }: any) => {
   const [lastMessageId, setLastMessageId] = useState("");
   const activeThreadId = activeThread?._id?.$oid || "";
   const queryClient = useQueryClient();
+  const [isNewThread, setIsNewThread] = useState(false);
+
+  const handleIsNewThread = (value: boolean) => {
+    if (!value) return setIsNewThread(false);
+    setActiveThread(null);
+    setIsNewThread(true);
+    setSessionId("");
+  };
 
   useEffect(() => {
     if (activeThread) {
-      setSessionId(activeThread?.sessionId);
+      setSessionId(activeThread?.sessionId || "");
     }
   }, [activeThread]);
 
-  const {data:fetchedMessages, isPending: fetchThreadMessagesLoading, isError:fetchThreadMessagesError} = useQuery({
-    queryKey: ["thread-messages", {activeThreadId: activeThread?._id?.$oid}],
-    queryFn: ()=>getThreadMessages(activeThreadId),
+  const {
+    data: fetchedMessages,
+    isPending: fetchThreadMessagesLoading,
+    isError: fetchThreadMessagesError,
+  } = useQuery({
+    queryKey: ["thread-messages", { activeThreadId: activeThread?._id?.$oid }],
+    queryFn: () => getThreadMessages(activeThreadId),
     retry: false,
-    enabled: !!activeThreadId,
-    select: (data) => (data?.messages || []) as ChatMessage[]
-  })
+    enabled: !!activeThread,
+    select: (data) => (data?.messages || []) as ChatMessage[],
+  });
 
-  const {mutate: sendMessageMutate, isPending: sendMessageLoading, isError: isSendMessageError} = useMutation({
+  const {
+    mutate: sendMessageMutate,
+    isPending: sendMessageLoading,
+    isError: isSendMessageError,
+  } = useMutation({
     mutationFn: addMessageToThread,
-    onSuccess: (data)=>{
-      setTempMessage("")
-      setLastMessageId(data?.message._id.$oid)
-      queryClient.setQueryData(["thread-messages", {activeThreadId: activeThread?._id?.$oid}], (oldData:any)=>{
-        console.log(oldData);
-        return {
-          messages: [...(oldData?.messages || []), data?.message]
+    onSuccess: (data) => {
+      setTempMessage("");
+      setLastMessageId(data?.message._id.$oid);
+      setIsNewThread(false);
+      if (data?.isNewThread) {
+        setActiveThread(data?.thread);
+        queryClient.setQueryData(["message-threads"], (oldData: any) => {
+          console.log(oldData, "Old threads!");
+          return {
+            threads: [
+              data?.thread,
+              ...(oldData?.threads?.filter(
+                (thread: any) => thread?._id?.$oid !== data?.thread?._id?.$oid
+              ) || []),
+            ],
+          };
+        });
+      }
+      queryClient.setQueryData(
+        ["thread-messages", { activeThreadId: activeThread?._id?.$oid }],
+        (oldData: any) => {
+          console.log(oldData);
+          return {
+            messages: [...(oldData?.messages || []), data?.message],
+          };
         }
-      })
+      );
       scrollToBottomOfMessageContainer();
     },
     onError: (e: AxiosError<any, any>) => {
       toast.error(e?.response?.data?.message || "Something went wrong!");
     },
-    onSettled: ()=>setTempMessage("")
-  })
+    onSettled: () => setTempMessage(""),
+  });
 
-  useEffect(()=>{
+  useEffect(() => {
     scrollToBottomOfMessageContainer();
-  }, [tempMessage, fetchedMessages?.length])
+  }, [tempMessage, fetchedMessages?.length]);
 
-  const sendMessage = (message:string)=>{
+  const sendMessage = (message: string) => {
     setTempMessage(message);
+    if (activeThread) {
+      queryClient.setQueryData(["message-threads"], (oldData: any) => {
+        return {
+          threads: [
+            activeThread,
+            ...(oldData?.threads?.filter(
+              (thread: any) => thread?._id?.$oid !== activeThread?._id?.$oid
+            ) || []),
+          ],
+        };
+      });
+    }
     sendMessageMutate({
       message,
-      sessionId
-    })
-
-  }
-
+      sessionId,
+    });
+  };
 
   const value = {
     messages: fetchedMessages || [],
@@ -115,13 +163,15 @@ export const ChatContextProvider = ({ children }: any) => {
     setSessionId,
     activeThread,
     setActiveThread,
-    fetchThreadMessagesLoading,
+    fetchThreadMessagesLoading: fetchThreadMessagesError && !isNewThread,
     fetchThreadMessagesError,
     tempMessage,
     sendMessageLoading,
     isSendMessageError,
     lastMessageId,
     setLastMessageId,
+    isNewThread,
+    setIsNewThread: handleIsNewThread,
   };
   return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>;
 };
