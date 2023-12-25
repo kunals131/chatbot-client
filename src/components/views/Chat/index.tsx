@@ -8,7 +8,7 @@ const Chat = () => {
   const { fetchThreadMessagesError, fetchThreadMessagesLoading } =
     useChatContext();
   return (
-    <div className="grid w-full min-h-screen grid-cols-[1.4fr_3fr]">
+    <div className="grid w-full h-screen max-h-screen grid-cols-[1.4fr_3fr]">
       <ChatHistory />
       {fetchThreadMessagesLoading ? (
         <div className="flex items-center justify-center text-white/70">

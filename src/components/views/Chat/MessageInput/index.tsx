@@ -33,9 +33,8 @@ const MessageInput = () => {
     useChatContext();
   const handleSend = (text: string) => {
     if (!text) return;
-    sendMessage(text, () => {
-      setText("");
-    });
+    sendMessage(text);
+    setText("")
   };
   const ActionButton = ({
     icon,

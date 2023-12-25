@@ -1,9 +1,15 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { ChatMessage, QueryModes, Thread } from "./Chat.types";
-import { QueryClient, useMutation, useQuery } from "@tanstack/react-query";
 import { addMessageToThread, getThreadMessages } from "./Chat.api";
 import toast from "react-hot-toast";
 import { AxiosError } from "axios";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+
+const scrollToBottomOfMessageContainer = () => {
+  const messageContainer = document.getElementById("messages-container-end");
+  if (!messageContainer) return;
+  messageContainer?.scrollIntoView({ behavior: 'smooth' });
+};
 
 type TChatContext = {
   messages: ChatMessage[];
@@ -49,62 +55,54 @@ export const ChatContextProvider = ({ children }: any) => {
   const [tempMessage, setTempMessage] = useState("");
   const [lastMessageId, setLastMessageId] = useState("");
   const activeThreadId = activeThread?._id?.$oid || "";
+  const queryClient = useQueryClient();
 
-  const {
-    data: fetchedMessages,
-    isLoading: fetchingThreadMessages,
-    isError: fetchThreadMessagesError,
-    status: fetchThreadMessagesStatus,
-  } = useQuery({
-    queryKey: ["thread-messages", activeThreadId],
-    queryFn: () => getThreadMessages(activeThreadId),
-    enabled: !!activeThread,
-    select: (data) => (data?.messages || []) as ChatMessage[],
-  });
+  useEffect(() => {
+    if (activeThread) {
+      setSessionId(activeThread?.sessionId);
+    }
+  }, [activeThread]);
 
-  const {
-    mutate,
-    isPending: sendMessageLoading,
-    isError: isSendMessageError,
-  } = useMutation({
+  const {data:fetchedMessages, isPending: fetchThreadMessagesLoading, isError:fetchThreadMessagesError} = useQuery({
+    queryKey: ["thread-messages", {activeThreadId: activeThread?._id?.$oid}],
+    queryFn: ()=>getThreadMessages(activeThreadId),
+    retry: false,
+    enabled: !!activeThreadId,
+    select: (data) => (data?.messages || []) as ChatMessage[]
+  })
+
+  const {mutate: sendMessageMutate, isPending: sendMessageLoading, isError: isSendMessageError} = useMutation({
     mutationFn: addMessageToThread,
-    onSuccess: (result) => {
-      const queryClient = new QueryClient();
-      const currentData: any = queryClient.getQueryData([
-        "thread-messages",
-        activeThreadId || "",
-      ]);
-      setLastMessageId(result?.message._id.$oid);
-      queryClient.setQueryData(["thread-messages", activeThreadId], {
-        messages: [...(currentData?.messages || []), result?.message],
-      });
+    onSuccess: (data)=>{
+      setTempMessage("")
+      setLastMessageId(data?.message._id.$oid)
+      queryClient.setQueryData(["thread-messages", {activeThreadId: activeThread?._id?.$oid}], (oldData:any)=>{
+        console.log(oldData);
+        return {
+          messages: [...(oldData?.messages || []), data?.message]
+        }
+      })
+      scrollToBottomOfMessageContainer();
     },
     onError: (e: AxiosError<any, any>) => {
       toast.error(e?.response?.data?.message || "Something went wrong!");
     },
-    onSettled: () => {
-      setTempMessage("");
-    },
-  });
+    onSettled: ()=>setTempMessage("")
+  })
 
-  useEffect(() => {
-    if (fetchThreadMessagesStatus === "success") {
-      setMessages(fetchedMessages);
-    }
-  }, [fetchThreadMessagesStatus]);
-
-  const sendMessage = (message: string, onSuccess?: () => void) => {
+  const sendMessage = (message:string)=>{
     setTempMessage(message);
-    mutate(
-      { sessionId: sessionId, message },
-      {
-        onSuccess: onSuccess ?? (() => {}),
-      }
-    );
-  };
+    scrollToBottomOfMessageContainer();
+    sendMessageMutate({
+      message,
+      sessionId
+    })
+
+  }
+
 
   const value = {
-    messages,
+    messages: fetchedMessages || [],
     sendMessage,
     queryMode,
     setQueryMode,
@@ -112,7 +110,7 @@ export const ChatContextProvider = ({ children }: any) => {
     setSessionId,
     activeThread,
     setActiveThread,
-    fetchThreadMessagesLoading: fetchingThreadMessages,
+    fetchThreadMessagesLoading,
     fetchThreadMessagesError,
     tempMessage,
     sendMessageLoading,

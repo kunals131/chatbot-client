@@ -6,7 +6,7 @@ import MessageItem from "../MessageItem";
 const MessagesContainer = () => {
   const { messages, tempMessage, sendMessageLoading } = useChatContext();
   return (
-    <div className="min-h-full py-9 w-full overflow-y-auto">
+    <div className="h-[700px] overflow-y-scroll py-9 w-full">
       <div className="space-y-7">
         {messages.map((message, idx) => (
           <>
@@ -19,10 +19,9 @@ const MessagesContainer = () => {
           </>
         ))}
         {tempMessage && <MessageItem text={tempMessage} isSelf />}
-        {sendMessageLoading && (
-          <MessageItem text={tempMessage} isSelf isPending />
-        )}
+        {(tempMessage || sendMessageLoading) && <MessageItem text={""} isPending />}
       </div>
+      <div id="messages-container-end"></div>
     </div>
   );
 };
