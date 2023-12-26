@@ -82,9 +82,10 @@ const RegisterForm = ({ setAuthView }: Props) => {
       <div className="mt-8 flex items-center">
         <button
           onClick={handleSubmit}
+          disabled={registerLoading}
           className="px-20 hover:bg-primary/60 hover:text-white transition-all font-[500] py-3 rounded-3xl bg-primary text-secondaryBgElevated"
         >
-          Register
+          {registerLoading ? "Loading.." : "Register"}
         </button>
       </div>
       <div className="mt-8 pl-2 space-y-1 text-sm ">
