@@ -2,6 +2,7 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -10,6 +11,7 @@ import React from "react";
 import { FaEye } from "react-icons/fa";
 import { EngineerSearchResult } from "../Chat.types";
 import { parseArrayValue } from "../Chat.helpers";
+import { Button } from "@/components/ui/button";
 
 type EngineerDetailItemProps = {
   label: string;
@@ -61,7 +63,7 @@ const EngineerDetailsDialog = ({ record }: Props) => {
             </div>
           </DialogTitle>
           <DialogDescription>
-            <div className="space-y-5">
+            <div className="space-y-5 mt-1">
               <div className="grid grid-cols-2 gap-y-4 gap-4 gap-x-6">
                 <EngineerDetailItem label="Full name" value={record?.name} />
                 <EngineerDetailItem
@@ -109,6 +111,9 @@ const EngineerDetailsDialog = ({ record }: Props) => {
               />
             </div>
           </DialogDescription>
+          <DialogFooter >
+             <Button className="mt-2 rounded-3xl" type="submit">Shortlist Candidate</Button>
+          </DialogFooter>
         </DialogHeader>
       </DialogContent>
     </Dialog>
