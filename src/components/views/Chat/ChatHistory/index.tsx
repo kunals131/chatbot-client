@@ -1,8 +1,8 @@
 import React, { useEffect } from "react";
 import { PiChatCircleDuotone, PiDotsThreeOutlineFill } from "react-icons/pi";
 import { CgMenuMotion } from "react-icons/cg";
-import { useQuery } from "@tanstack/react-query";
-import { getMessageThreads } from "./ChatHistory.api";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { deleteThread, getMessageThreads } from "./ChatHistory.api";
 import { convertToRelativeTime } from "@/utils/functions";
 import { useChatContext } from "../Chat.context";
 import { cn } from "@/lib/utils";
@@ -15,15 +15,41 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { AxiosError } from "axios";
+import toast from "react-hot-toast";
 
 type ThreadItemProps = {
   threadData: Thread;
 };
 const ThreadItem = ({ threadData }: ThreadItemProps) => {
   const { activeThread, setActiveThread } = useChatContext();
+  const queryClient = useQueryClient();
   const handleThreadItemClick = () => {
     setActiveThread(threadData);
   };
+  const { mutate, isPending } = useMutation({
+    mutationFn: () => deleteThread(threadData?._id?.$oid),
+    onSuccess: (data) => {
+      queryClient.setQueryData(["message-threads"], (oldData: any) => {
+        console.log(oldData, "Old threads!");
+        return {
+          threads: [
+            ...(oldData?.threads?.filter(
+              (thread: any) => thread?._id?.$oid !== data?.thread?._id?.$oid
+            ) || []),
+          ],
+        };
+      });
+    },
+    onError: (e: AxiosError<any, any>) => {
+      toast.error(e?.response?.data?.message || "Something went wrong!");
+    },
+  });
+
+  const handleDelete = () => {
+    mutate();
+  };
+
   const isActive = activeThread?._id?.$oid === threadData._id.$oid;
   return (
     <div
@@ -41,9 +67,9 @@ const ThreadItem = ({ threadData }: ThreadItemProps) => {
           <div className="mt-1 text-sm">{threadData?.lastMessage}</div>
         </div>
         <div className="flex flex-col items-end">
-            <div className="text-white/50 text-xs">
-              {convertToRelativeTime(threadData.updatedAt)}
-            </div>
+          <div className="text-white/50 text-xs">
+            {convertToRelativeTime(threadData.updatedAt)}
+          </div>
           <div className="mt-1">
             <DropdownMenu>
               <DropdownMenuTrigger>
@@ -51,7 +77,9 @@ const ThreadItem = ({ threadData }: ThreadItemProps) => {
               </DropdownMenuTrigger>
               <DropdownMenuContent>
                 <DropdownMenuItem className="font">Edit</DropdownMenuItem>
-                <DropdownMenuItem>Delete</DropdownMenuItem>
+                <DropdownMenuItem disabled={isPending} onClick={handleDelete}>
+                  {isPending ? "Deleting..." : "Delete"}
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
@@ -60,6 +88,8 @@ const ThreadItem = ({ threadData }: ThreadItemProps) => {
     </div>
   );
 };
+
+
 
 const ChatHistory = () => {
   const {

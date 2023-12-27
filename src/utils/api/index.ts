@@ -4,7 +4,7 @@ import { ROUTES } from "../constants";
 import cookies from "../functions/cookies";
 
 export const axiosInstance = axios.create({
-  baseURL: "http://localhost:8000/v1/api",
+  baseURL: "https://fast-server-nqghy23a2a-uc.a.run.app/v1/api",
   timeout: 20*1000,
 });
 
