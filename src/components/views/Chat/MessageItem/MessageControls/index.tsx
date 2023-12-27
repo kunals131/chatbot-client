@@ -32,6 +32,7 @@ const MessageControlItem = ({
   disabled?: boolean;
   loading?: boolean;
 }) => {
+  console.log(label, disabled);
   return (
     <div
       onClick={onClick}
@@ -109,7 +110,12 @@ const MessageControls = ({ data }: { data?: ChatMessage }) => {
       <ContextDialog data={data} />
       <Separator orientation="vertical" />
       <MessageControlItem
-        disabled={fetchSuggestionsApi.loading || !data}
+        disabled={
+          fetchSuggestionsApi.loading ||
+          !data ||
+          !data?.suggestedResults?.matches ||
+          (data?.populatedResults?.length || 0) > 0
+        }
         Icon={LuDownloadCloud}
         label="list suggestions"
         loading={fetchSuggestionsApi.loading}

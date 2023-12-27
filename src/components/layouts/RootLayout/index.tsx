@@ -8,6 +8,7 @@ import useAppStore from "@/store";
 import { ROUTES } from "@/utils/constants";
 import { Toaster } from "react-hot-toast";
 import { AxiosError } from "axios";
+import { ThemeProvider } from "@/components/common/ThemeProvider";
 
 export const fontSans = FontSans({
   subsets: ["latin"],
@@ -47,15 +48,17 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   return (
-    <div
-      className={cn(
-        "min-h-screen w-full text-white bg-primaryBg !font-sans",
-        fontSans.variable
-      )}
-    >
-      {children}
-      <Toaster position="top-center" />
-    </div>
+    <ThemeProvider attribute="class" defaultTheme="dark" >
+      <div
+        className={cn(
+          "min-h-screen w-full text-white bg-primaryBg !font-sans",
+          fontSans.variable
+        )}
+      >
+        {children}
+        <Toaster position="top-center" />
+      </div>
+    </ThemeProvider>
   );
 };
 

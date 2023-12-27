@@ -5,7 +5,7 @@ import cookies from "../functions/cookies";
 
 export const axiosInstance = axios.create({
   baseURL: "http://localhost:8000/v1/api",
-  timeout: 7000,
+  timeout: 20*1000,
 });
 
 axiosInstance.interceptors.request.use(
