@@ -4,7 +4,7 @@ import { ROUTES } from "../constants";
 import cookies from "../functions/cookies";
 
 export const axiosInstance = axios.create({
-  baseURL: "https://fast-server-nqghy23a2a-uc.a.run.app/v1/api",
+  baseURL: "https://ede5-2405-201-3011-ce18-2412-4ea7-6257-1c4b.ngrok-free.app/v1/api",
   timeout: 20*1000,
 });
 
