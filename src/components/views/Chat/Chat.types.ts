@@ -38,6 +38,7 @@ export type ChatMessage = {
   _id: ObjectId;
   response: string;
   entities: object;
+  intent: string;
   sessionId: string;
   suggestedResults: {
     matches: any[];

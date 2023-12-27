@@ -4,32 +4,41 @@ import { ChatMessage } from "../Chat.types";
 import Loader from "react-spinners/BeatLoader";
 import { useIsMounted } from "@/utils/hooks/useIsMounted";
 import { useChatContext } from "../Chat.context";
-import TypeWriterEffect from "@/components/common/TypeWriterEffect";
 import { DataTable } from "../FilteredEngineersTable";
 import { prepareSuggestedRecords } from "./MessageItem.helpers";
 import { motion } from "framer-motion";
+import MessageControls from "./MessageControls";
+import { TypeAnimation } from "react-type-animation";
 
 const MessageItem = ({ isSelf, text, additionalInfo, isPending }: Props) => {
   const isMounted = useIsMounted();
   const { lastMessageId, setLastMessageId } = useChatContext();
   const isLastMessage = lastMessageId === additionalInfo?._id.$oid;
   console.log(additionalInfo);
-  const isTableVisible = additionalInfo?.suggestedResults && additionalInfo?.suggestedResults?.matches?.length && additionalInfo?.populatedResults
+  const isTableVisible =
+    additionalInfo?.suggestedResults &&
+    additionalInfo?.suggestedResults?.matches?.length &&
+    additionalInfo?.populatedResults;
 
-  const tableRecords = useMemo(()=>{
+  const tableRecords = useMemo(() => {
     if (isTableVisible) {
-      const combinedRecords = additionalInfo?.suggestedResults?.matches?.map(match=>{
-        const item = additionalInfo?.populatedResults?.find((item)=>item.resumeId === match.id) || {}
-        return {
-          ...item,
-          ...match
+      const combinedRecords = additionalInfo?.suggestedResults?.matches?.map(
+        (match) => {
+          const item =
+            additionalInfo?.populatedResults?.find(
+              (item) => item.resumeId === match.id
+            ) || {};
+          return {
+            ...item,
+            ...match,
+          };
         }
-      })
-      return prepareSuggestedRecords(combinedRecords)
-    }else {
-      return []
+      );
+      return prepareSuggestedRecords(combinedRecords);
+    } else {
+      return [];
     }
-  }, [additionalInfo?.suggestedResults?.matches])
+  }, [additionalInfo?.suggestedResults?.matches]);
 
   if (!isMounted) return null;
 
@@ -54,33 +63,37 @@ const MessageItem = ({ isSelf, text, additionalInfo, isPending }: Props) => {
             ></div>
           </div>
           <div className="">
-            <div className="font-semibold text-base">Mercor bot</div>
+            <div className="flex items-center gap-3">
+              <div className="font-semibold text-base">Mercor bot</div>
+              <MessageControls data={additionalInfo} />
+            </div>
             {isPending ? (
               <div>
                 <Loader size={9} color="#ffff" />
               </div>
             ) : isLastMessage ? (
-              <TypeWriterEffect
-                run
-                onTextEnd={() => {
-                  setTimeout(() => setLastMessageId(""));
-                }}
-                text={text}
+              <TypeAnimation
+                sequence={[
+                  text,
+                  () => {
+                    setTimeout(() => setLastMessageId(""));
+                  },
+                ]}
               />
             ) : (
               <div className="w-full">
-                <div className="">{text}</div>
+                <div className="">
+                  <div>{text}</div>
+                </div>
                 {isTableVisible && (
-                    <motion.div
-                      animate={isLastMessage ? { translateY: "0px" } : {}}
-                      initial={isLastMessage ? { translateY: "50px" } : {}}
-                      className="w-full mt-1"
-                    > 
-                      <DataTable
-                        records={tableRecords}
-                      />
-                    </motion.div>
-                  )}
+                  <motion.div
+                    animate={isLastMessage ? { translateY: "0px" } : {}}
+                    initial={isLastMessage ? { translateY: "50px" } : {}}
+                    className="w-full mt-1"
+                  >
+                    <DataTable records={tableRecords} />
+                  </motion.div>
+                )}
               </div>
             )}
           </div>
