@@ -8,14 +8,3 @@ export const parseArrayValue = (value?: string) => {
   }
   return "-";
 };
-
-export const readJson = (json?: any) => {
-  try {
-    const string = JSON.stringify(json);
-    const response = JSON.parse(string);
-
-    return JSON.stringify(response, null, " ");
-  } catch (exception) {
-    return "";
-  }
-};

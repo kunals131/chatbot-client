@@ -38,7 +38,7 @@ const MessageItem = ({ isSelf, text, additionalInfo, isPending }: Props) => {
     } else {
       return [];
     }
-  }, [additionalInfo?.suggestedResults?.matches]);
+  }, [additionalInfo?.suggestedResults?.matches, additionalInfo?.populatedResults]);
 
   if (!isMounted) return null;
 
