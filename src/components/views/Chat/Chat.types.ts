@@ -11,7 +11,28 @@ export type ObjectId = {
 export type AddMessageToThreadPayload = {
   message: string;
   sessionId: string;
+  queryMode: QueryModes;
 };
+
+export type PopulatedResult = {
+  resumeId: string;
+  userId:string;
+  name:string;
+  email: string;
+  phone: string;
+  fullTimeStatus: string;
+  workAvailability: string;
+  fullTimeSalaryCurrency: string;
+  fullTimeSalary: string;
+  partTimeSalaryCurrency: string;
+  partTimeSalary: string;
+  fullTimeAvailability: string;
+  partTimeAvailability: string;
+  preferredRole: string;
+  WorkExperience: string;
+  Education: string;
+  location: string
+}
 
 export type ChatMessage = {
   _id: ObjectId;
@@ -24,6 +45,7 @@ export type ChatMessage = {
   threadId: string;
   createdAt: string;
   message: string;
+  populatedResults?: PopulatedResult[]
 };
 
 export type Thread = {
@@ -44,4 +66,6 @@ export type EngineerSearchResult = {
   ptAvailability: string;
   ftSalary: string;
   ptSalary: string;
-};
+  name: string;
+  email: string;
+} & Partial<PopulatedResult>;

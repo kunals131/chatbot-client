@@ -54,7 +54,7 @@ export const ChatContext = createContext<TChatContext>({
 });
 
 export const ChatContextProvider = ({ children }: any) => {
-  const [queryMode, setQueryMode] = useState<QueryModes>(QueryModes.BALANCED);
+  const [queryMode, setQueryMode] = useState<QueryModes>(QueryModes.PERCISE);
   const [sessionId, setSessionId] = useState("");
   const [activeThread, setActiveThread] = useState<Thread | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -151,6 +151,7 @@ export const ChatContextProvider = ({ children }: any) => {
     sendMessageMutate({
       message,
       sessionId,
+      queryMode
     });
   };
 

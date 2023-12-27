@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import React from "react";
+import React, { useMemo } from "react";
 import { ChatMessage } from "../Chat.types";
 import Loader from "react-spinners/BeatLoader";
 import { useIsMounted } from "@/utils/hooks/useIsMounted";
@@ -13,8 +13,26 @@ const MessageItem = ({ isSelf, text, additionalInfo, isPending }: Props) => {
   const isMounted = useIsMounted();
   const { lastMessageId, setLastMessageId } = useChatContext();
   const isLastMessage = lastMessageId === additionalInfo?._id.$oid;
-  if (!isMounted) return null;
   console.log(additionalInfo);
+  const isTableVisible = additionalInfo?.suggestedResults && additionalInfo?.suggestedResults?.matches?.length && additionalInfo?.populatedResults
+
+  const tableRecords = useMemo(()=>{
+    if (isTableVisible) {
+      const combinedRecords = additionalInfo?.suggestedResults?.matches?.map(match=>{
+        const item = additionalInfo?.populatedResults?.find((item)=>item.resumeId === match.id) || {}
+        return {
+          ...item,
+          ...match
+        }
+      })
+      return prepareSuggestedRecords(combinedRecords)
+    }else {
+      return []
+    }
+  }, [additionalInfo?.suggestedResults?.matches])
+
+  if (!isMounted) return null;
+
   return (
     <div className={cn("flex items-center")}>
       {isSelf ? (
@@ -52,21 +70,14 @@ const MessageItem = ({ isSelf, text, additionalInfo, isPending }: Props) => {
             ) : (
               <div className="w-full">
                 <div className="">{text}</div>
-                {additionalInfo?.suggestedResults?.matches &&
-                  !!additionalInfo?.suggestedResults?.matches?.length && (
+                {isTableVisible && (
                     <motion.div
                       animate={isLastMessage ? { translateY: "0px" } : {}}
                       initial={isLastMessage ? { translateY: "50px" } : {}}
                       className="w-full mt-1"
-                    >
-                      <div className="text-sm text-white/60 mb-2">
-                        Although I found a few responses, you can filter your
-                        search further!
-                      </div>
+                    > 
                       <DataTable
-                        records={prepareSuggestedRecords(
-                          additionalInfo?.suggestedResults?.matches
-                        )}
+                        records={tableRecords}
                       />
                     </motion.div>
                   )}

@@ -8,7 +8,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { FaEye } from "react-icons/fa";
+
 import { EngineerSearchResult } from "../Chat.types";
+import EngineerDetailsDialog from "../EngineerDetailsDialog";
+import { parseArrayValue } from "../Chat.helpers";
 
 const invoices = [
   {
@@ -57,27 +61,35 @@ const invoices = [
 
 export function DataTable({ records, caption }: Props) {
   return (
-    <Table className="w-[750px]">
+    <Table className="w-full">
       {caption && <TableCaption>{caption}</TableCaption>}
       <TableHeader>
         <TableRow className="">
-          <TableHead className="w-fit">ResumeId</TableHead>
+          <TableHead className="w-fit">Name</TableHead>
+          <TableHead className="w-fit">Email</TableHead>
           <TableHead>FT Status</TableHead>
           <TableHead>PT Status</TableHead>
           <TableHead className="w-[170px]">Skills</TableHead>
           <TableHead className="text-right">FT Salary</TableHead>
           <TableHead className="text-right">PT Salary</TableHead>
+          <TableHead className="text-right">Actions</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
         {records?.map((record) => (
           <TableRow key={record.id}>
-            <TableCell className="font-medium">{record.id}</TableCell>
+            <TableCell className="font-medium">{record.name}</TableCell>
+            <TableCell className="font-medium">
+              {parseArrayValue(record?.email)}
+            </TableCell>
             <TableCell>{record.ftAvailability}</TableCell>
             <TableCell>{record.ptAvailability}</TableCell>
             <TableCell className="">{record.skills}</TableCell>
             <TableCell className="text-right">{record.ftSalary}</TableCell>
             <TableCell className="text-right">{record.ptSalary}</TableCell>
+            <TableCell className="text-right w-fit">
+              <EngineerDetailsDialog record={record} />
+            </TableCell>
           </TableRow>
         ))}
       </TableBody>

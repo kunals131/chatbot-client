@@ -31,3 +31,20 @@ export function convertToRelativeTime(isoTime: string) {
     return `${days}d ago`;
   }
 }
+
+
+export function mergeObjectsWithMapping(mapping: Record<string,string>, obj1:Record<string,any>, obj2:Record<string,any>) {
+  const mergedObj = { ...obj1 };
+
+  for (const prop in obj2) {
+    if (obj2.hasOwnProperty(prop)) {
+      // Check if there's a mapping for the property
+      const mappedProp = mapping[prop] || prop;
+
+      // Override value in mergedObj if the mapped property exists
+      mergedObj[mappedProp] = obj2[prop];
+    }
+  }
+
+  return mergedObj;
+}
