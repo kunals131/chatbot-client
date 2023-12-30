@@ -38,7 +38,10 @@ const MessageItem = ({ isSelf, text, additionalInfo, isPending }: Props) => {
     } else {
       return [];
     }
-  }, [additionalInfo?.suggestedResults?.matches, additionalInfo?.populatedResults]);
+  }, [
+    additionalInfo?.suggestedResults?.matches,
+    additionalInfo?.populatedResults,
+  ]);
 
   if (!isMounted) return null;
 
@@ -85,7 +88,7 @@ const MessageItem = ({ isSelf, text, additionalInfo, isPending }: Props) => {
                 <div className="">
                   <div>{text}</div>
                 </div>
-                {isTableVisible && (
+                {Boolean(isTableVisible) && (
                   <motion.div
                     animate={isLastMessage ? { translateY: "0px" } : {}}
                     initial={isLastMessage ? { translateY: "50px" } : {}}
@@ -93,6 +96,11 @@ const MessageItem = ({ isSelf, text, additionalInfo, isPending }: Props) => {
                   >
                     <DataTable records={tableRecords} />
                   </motion.div>
+                )}
+                {additionalInfo?.suggestedResults?.matches?.length === 0 && (
+                  <div className="text-xs text-gray-400 mt-2 py-1 border-t border-t-white/30">
+                    Sorry I looked all over but didn{"'"}t find anything so far.
+                  </div>
                 )}
               </div>
             )}
