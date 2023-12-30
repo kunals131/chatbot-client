@@ -75,7 +75,7 @@ const EngineerDetailsDialog = ({ record }: Props) => {
                   value={parseArrayValue(record?.email)}
                 />
                 <EngineerDetailItem
-                  label="Email"
+                  label="Phone"
                   value={parseArrayValue(record?.phone)}
                 />
               </div>
