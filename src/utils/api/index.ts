@@ -8,7 +8,7 @@ const DEPLOYED_BASE_URL="https://fast-server-nqghy23a2a-uc.a.run.app/v1/api"
 
 export const axiosInstance = axios.create({
   baseURL: DEPLOYED_BASE_URL,
-  timeout: 20*1000,
+  timeout: 30*1000,
 });
 
 axiosInstance.interceptors.request.use(
