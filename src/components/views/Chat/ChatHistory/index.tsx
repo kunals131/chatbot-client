@@ -35,7 +35,7 @@ const ThreadItem = ({ threadData }: ThreadItemProps) => {
         return {
           threads: [
             ...(oldData?.threads?.filter(
-              (thread: any) => thread?._id?.$oid !== data?.thread?._id?.$oid
+              (thread: any) => thread?._id?.$oid !== threadData?._id?.$oid
             ) || []),
           ],
         };

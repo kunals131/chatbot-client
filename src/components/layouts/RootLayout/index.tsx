@@ -45,10 +45,10 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
     } else {
       router.push(ROUTES.AUTH);
     }
-  }, []);
+  }, [token]);
 
   return (
-    <ThemeProvider attribute="class" defaultTheme="dark" >
+    <ThemeProvider attribute="class" defaultTheme="dark">
       <div
         className={cn(
           "min-h-screen w-full text-white bg-primaryBg !font-sans",
